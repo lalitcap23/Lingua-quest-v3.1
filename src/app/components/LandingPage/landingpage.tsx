@@ -6,6 +6,7 @@ import { ArrowRight, BookOpen, BadgeIcon as Certificate, Users, Globe } from 'lu
 // changes
 import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { useAccount, useDisconnect } from 'wagmi';
+import { useRouter } from 'next/navigation';
 // changes end
 
 interface FeatureCardProps {
@@ -43,14 +44,26 @@ const LandingPage: React.FC = () => {
   // changes
   const { open } = useWeb3Modal()
   const { address, isConnected } = useAccount()
-  const { disconnect } = useDisconnect()
-
-  const handleWalletConnection = () => {
-    if (isConnected) {
-      disconnect()
-    } else {
-      open()
+  const router = useRouter();
+  
+  const handleWalletConnection = async () => {
+    try {
+      if (isConnected) {
+        open({ view: 'Account' })
+      } else {
+        await open()
+      }
+    } catch (error) {
+      console.error('Wallet connection error:', error)
     }
+  }
+
+  const handleStartLearning = () => {
+    if (isConnected) {
+      router.push('/lessons');
+    } else {
+      open();
+    }       
   }
   // changes end
 
@@ -108,7 +121,7 @@ const LandingPage: React.FC = () => {
         <div className="mb-16">
           <button 
             className="bg-green-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-600 transition-colors duration-300 flex items-center justify-center mx-auto"
-            onClick={() => console.log("Start learning clicked")}
+            onClick={handleStartLearning}
           >
             Start Learning 
             <ArrowRight className="ml-2" size={20} />
